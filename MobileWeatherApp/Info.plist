@@ -4,5 +4,15 @@
 <dict>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Weather updates will be sent to keep you informed about significant changes.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to provide accurate weather information for your area.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need your location to provide accurate weather information and send you weather updates even when the app is in the background.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to provide accurate weather information and send you weather updates even when the app is in the background.</string>
 </dict>
 </plist>
