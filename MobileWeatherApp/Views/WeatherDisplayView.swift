@@ -9,8 +9,9 @@ import SwiftUI
 import CoreLocation
 
 struct WeatherDisplayView: View {
-    let location: CLLocation // 'location' is already a non-optional CLLocation
+    let location: CLLocation
     @EnvironmentObject private var weatherService: WeatherService
+    @EnvironmentObject private var locationManager: LocationManager
 
     var body: some View {
         VStack(spacing: 20) {
@@ -18,7 +19,7 @@ struct WeatherDisplayView: View {
                 ProgressView("Fetching weather...")
             } else if let weather = weatherService.currentWeather {
                 // Current weather display
-                Text(location.locality ?? "Your Location") // Displays city name if available
+                Text(locationManager.placemark?.locality ?? "Your Location")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.bottom, 5)
@@ -37,14 +38,13 @@ struct WeatherDisplayView: View {
 
                     Text("\(Int(weather.temperature))°C")
                         .font(.system(size: 80, weight: .bold))
-                        .gradientForeground(colors: [Color.blue, Color.purple]) // Corrected Color literal usage
+                        .gradientForeground(colors: [Color.blue, Color.purple])
                 }
                 .padding(.bottom, 20)
 
                 // Additional weather details
                 VStack(alignment: .leading, spacing: 10) {
                     WeatherDetailRow(icon: "wind", label: "Wind Speed", value: "\(Int(weather.windspeed)) km/h")
-                    // Safely unwrap optional Double? values with ?? 0 before converting to Int
                     WeatherDetailRow(icon: "cloud", label: "Cloud Cover", value: "\(Int(weather.cloudcover ?? 0))%")
                     WeatherDetailRow(icon: "humidity", label: "Humidity", value: "\(Int(weather.relativehumidity_2m ?? 0))%")
                     WeatherDetailRow(icon: "thermometer.sun", label: "Feels Like", value: "\(Int(weather.apparent_temperature ?? 0))°C")
@@ -57,7 +57,7 @@ struct WeatherDisplayView: View {
                 // Navigation Link to ForecastView
                 NavigationLink {
                     ForecastView()
-                        .environmentObject(weatherService) // ForecastView needs weatherService
+                        .environmentObject(weatherService)
                 } label: {
                     Label("View 7-Day Forecast", systemImage: "calendar")
                         .font(.headline)
@@ -84,9 +84,6 @@ struct WeatherDisplayView: View {
                 .edgesIgnoringSafeArea(.all)
         )
         .onAppear {
-            // Fetch weather data when the view appears.
-            // 'location' is a non-optional CLLocation in this view, so direct access is appropriate.
-            // Call async fetchWeatherData in a Task
             Task {
                 await weatherService.fetchWeatherData(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
             }
@@ -94,7 +91,7 @@ struct WeatherDisplayView: View {
     }
 }
 
-// Custom ViewModifier for gradient text - Moved for proper scope
+// Custom ViewModifier for gradient text
 extension View {
     func gradientForeground(colors: [Color]) -> some View {
         self.overlay(
@@ -108,7 +105,7 @@ extension View {
     }
 }
 
-// Helper view for displaying a single detail row.
+// Helper view for displaying a single detail row
 struct WeatherDetailRow: View {
     let icon: String
     let label: String

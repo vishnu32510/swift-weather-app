@@ -17,10 +17,10 @@ struct SettingsView: View {
         NavigationView {
             Form {
                 Section("Notifications") {
-                    Toggle(isOn: $notificationManager.notificationsEnabled) {
+                    Toggle(isOn: $notificationManager.isAuthorized) {
                         Text("Enable Weather Notifications")
                     }
-                    .onChange(of: notificationManager.notificationsEnabled) { newValue in
+                    .onChange(of: notificationManager.isAuthorized) { newValue in
                         // If notifications are enabled, request authorization if not already granted.
                         if newValue {
                             notificationManager.requestAuthorization()
@@ -43,4 +43,9 @@ struct SettingsView: View {
             }
         }
     }
+}
+
+#Preview {
+    SettingsView()
+        .environmentObject(NotificationManager())
 }

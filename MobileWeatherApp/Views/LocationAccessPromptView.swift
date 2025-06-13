@@ -6,39 +6,73 @@
 //
 
 import SwiftUI
-import CoreLocationUI
 
 struct LocationAccessPromptView: View {
-    // Environment object to access the LocationManager and request location.
-    @EnvironmentObject private var locationManager: LocationManager
-
+    @EnvironmentObject var locationManager: LocationManager
+    
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: "location.fill")
+            Image(systemName: "location.circle")
                 .resizable()
-                .scaledToFit()
                 .frame(width: 100, height: 100)
-                .foregroundColor(.blue)
-
-            Text("Allow Location Access")
-                .font(.title)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-
-            Text("This app needs your location to provide accurate weather forecasts. Please enable location services.")
-                .font(.body)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            LocationButton(.shareCurrentLocation) {
-                locationManager.requestLocation() // Request location when button is tapped.
+                .foregroundColor(.white)
+            
+            switch locationManager.authorizationStatus {
+            case .notDetermined:
+                Text("Location Access Required")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Please allow location access to get weather information for your area.")
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                
+                Button {
+                    locationManager.requestLocation()
+                } label: {
+                    Text("Enable Location")
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                }
+                
+            case .restricted, .denied:
+                Text("Location Access Denied")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Please enable location access in Settings to get weather information for your area.")
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text("Open Settings")
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                }
+                
+            default:
+                if let error = locationManager.error {
+                    Text("Error: \(error.localizedDescription)")
+                        .foregroundColor(.white)
+                } else {
+                    ProgressView("Getting location...")
+                        .foregroundColor(.white)
+                }
             }
-            .symbolVariant(.fill)
-            .labelStyle(.titleAndIcon)
-            .cornerRadius(10)
-            .tint(.blue)
-            .padding(.top, 20)
         }
         .padding()
     }
