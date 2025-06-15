@@ -38,15 +38,18 @@ class LLMService: ObservableObject {
     private struct Candidate: Codable {
         let content: Content
     }
-
+    
     // MARK: - Main API Call Function
     
     func fetchSuggestions(for weatherSummary: String) async throws -> String {
         guard let apiKey = APIKeyManager.getAPIKey() else {
+            // NEW: Add a specific print statement for this failure case
+            print("❌ DEBUG: APIKeyManager.getAPIKey() returned nil. The key is NOT in the bundle.")
             throw URLError(.userAuthenticationRequired)
         }
         
         let urlString = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=\(apiKey)"
+//        print("✅ DEBUG: Attempting to use URL String: \(urlString)")
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
@@ -58,7 +61,7 @@ class LLMService: ObservableObject {
         
         let prompt = """
         You are a weather-based activity recommender. Based on the weather summary below, suggest one perfect activity.
-
+        
         🎯 Response Rules:
         - Respond in **ONE short line only**.
         - Start with an **emoji that represents the activity or location**, not the weather itself.
@@ -71,17 +74,17 @@ class LLMService: ObservableObject {
           - "Stay in and..."
         - Make the activity **specific to time of day (day/night), location, and weather**.
         - Make it creative, helpful, and personalized.
-
+        
         🛌 Special Case:
         - If it’s sleep time (late night), suggest resting or sleeping well to start a fresh day.
-
+        
         📦 Example Responses:
         📖 Cozy day to curl up with a book by the window.  
         🏖️ Blissful day for a beach stroll with ocean breeze.  
         🚴 Energetic day for biking through the lakeside trail.  
         🎮 Rainy day to stay in and catch up on gaming.  
         🎬 Great day for Netflix and a warm blanket.
-
+        
         📍 Weather Summary:
         \(weatherSummary)
         """
