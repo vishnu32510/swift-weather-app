@@ -64,7 +64,7 @@ class LLMService: ObservableObject {
         
         🎯 Response Rules:
         - Respond in **ONE short line only**.
-        - Start with an **emoji that represents the activity or location**, not the weather itself.
+        - Start with an **emoji that represents the activity or location**, not the weather itself, do not use weather emoji, use activity emoji that is present/relative/relatable in the "expressive phrases".
         - Use expressive phrases like:
           - "Great day for..."
           - "Cozy day to..."
