@@ -9,18 +9,12 @@ import Foundation
 
 enum WeatherAppHelpers {
     
-    /// Creates a human-readable weather summary string for use with an LLM prompt.
-    /// - Parameters:
-    ///   - current: The `Current` weather data object.
-    ///   - daily: The `Daily` forecast data object.
-    ///   - locality: An optional string for the user's city name.
-    /// - Returns: A formatted summary string, or `nil` if essential data is missing.
     public static func create(current: Current, daily: Daily, locality: String?) -> String? {
         
-        // Use guard to safely unwrap the first day's high and low temps.
+    
         guard let todayMaxOptional = daily.temperature2MMax.first, let todayMax = todayMaxOptional,
               let todayMinOptional = daily.temperature2MMin.first, let todayMin = todayMinOptional else {
-            // Return nil if data is incomplete.
+        
             return nil
         }
         
@@ -45,7 +39,6 @@ enum WeatherAppHelpers {
         return summary
     }
     
-    /// This helper function is now private to this utility.
     private static func windDirection(from degrees: Int) -> String {
         let directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
         let index = Int((Double(degrees) + 11.25) / 22.5) & 15

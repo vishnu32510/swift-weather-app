@@ -3,17 +3,17 @@ import BackgroundTasks
 
 @MainActor
 class BackgroundTaskManager {
-    // Use the same identifier you used in Info.plist
+
     let taskIdentifier = "com.vishnu.OpenMeteoWeatherApp.fetchWeatherSuggestion"
     
-    // These are needed to perform the work
+
     private let locationManager = LocationManager()
     private let weatherAlertManager = WeatherAlertManager()
     private let weatherService = WeatherService()
     private let llmService = LLMService()
     private let notificationManager = NotificationManager()
     
-    // MARK: - Task Registration and Scheduling
+
     
     func registerBackgroundTask() {
         BGTaskScheduler.shared.register(forTaskWithIdentifier: taskIdentifier, using: nil) { task in
@@ -33,10 +33,10 @@ class BackgroundTaskManager {
         }
     }
     
-    // MARK: - Task Implementation
+
     
     private func handleAppRefresh(task: BGAppRefreshTask) {
-        scheduleAppRefresh() // Schedule the next refresh immediately
+        scheduleAppRefresh()
         
         let operationQueue = OperationQueue()
         operationQueue.maxConcurrentOperationCount = 1
@@ -60,16 +60,16 @@ class BackgroundTaskManager {
     private func performBackgroundTask() async {
         print("--- Performing Background Fetch ---")
         do {
-            // 1. Get Location
+        
             guard let location = locationManager.location else {
                 print("Background task failed: No location.")
                 return
             }
             
-            // 2. Fetch Weather
+        
             await weatherService.fetchWeatherData(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
             
-            // --- NEW: Check for interesting weather alerts ---
+        
                         if let hourly = weatherService.hourlyForecast {
                             await weatherAlertManager.checkForAlerts(
                                 hourlyForecast: hourly,
@@ -77,7 +77,7 @@ class BackgroundTaskManager {
                             )
                         }
             
-            // 3. Create Summary for AI
+        
             guard let current = weatherService.currentWeather,
                   let daily = weatherService.dailyForecast else {
                 print("Background task failed: Could not get weather data.")
@@ -94,10 +94,10 @@ class BackgroundTaskManager {
             }
             guard summary != "Weather data is not currently available." else { return }
             
-            // 4. Fetch Suggestion from AI
+        
             let suggestion = try await llmService.fetchSuggestions(for: summary)
             
-            // 5. Send Notification with the suggestion
+        
             notificationManager.scheduleWeatherAlert(
                 title: "Daily Weather Tip",
                 body: suggestion

@@ -5,28 +5,25 @@
 //  Created by Vishnu Priyan Sellam Shanmugavel on 6/14/25.
 //
 
-// In OpenMeteoWeatherApp/Views/Components/TodayWeather.swift
-
 import Foundation
 import SwiftUI
 
 struct TodayWeather: View {
-    // NEW: We now accept the whole 'Current' object.
     let current: Current
-    // The locality still comes from a different source, so we keep it.
+    
     let locality: String
     
     var body: some View {
         VStack(spacing: 4) {
             CityView(cityName: locality)
             
-            // Access properties directly from the 'current' object
+            
             Text("\(Int(current.temperature2M.rounded()))°")
                 .font(.system(size: 60, weight: .thin, design: .default))
             
             HStack {
                 VStack(spacing: 0) {
-                    // Derive the image name directly inside the view
+                    
                     Image(systemName: WeatherCodeMapper.symbol(for: current.weatherCode))
                         .renderingMode(.original)
                         .font(.title2)
@@ -38,9 +35,9 @@ struct TodayWeather: View {
                     .fontWeight(.medium)
             }
             
-            // "Feels Like" temperature
+            
             Text("Feels like \(Int(current.apparentTemperature.rounded()))°")
-                .font(.caption) // Use .caption for a smaller, bolder look inside the capsule
+                .font(.caption) 
                 .fontWeight(.bold)
                 .foregroundStyle(.white)
                 .padding(.horizontal, 12)
@@ -48,7 +45,7 @@ struct TodayWeather: View {
                 .background(.white.opacity(0.15), in: Capsule())
                 .padding(.top, 8)
             
-            // Horizontal stack for other key stats
+            
             HStack(spacing: 20) {
                 VStack {
                     Text("Humidity")

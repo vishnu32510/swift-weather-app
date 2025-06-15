@@ -18,7 +18,6 @@ struct ContentView: View {
     @State private var suggestion: String?
     @State private var isLoadingSuggestion = false
     
-    
     private var isNight: Bool {
         weatherService.currentWeather?.isDay == 0
     }
@@ -29,12 +28,10 @@ struct ContentView: View {
                 BackgroundView(isNight: isNight)
                 ScrollView(.vertical){
                     VStack{
-                        // Check if the weather service is loading
                         if weatherService.isLoading {
                             LoadingView()
                         }
                         else if let currentWeather = weatherService.currentWeather {
-                            // --- Display Today's Weather (Live Data) ---
                             TodayWeather(
                                 current: currentWeather,
                                 locality: locationManager.placemark?.locality ?? "Unknown Location",
@@ -45,15 +42,12 @@ struct ContentView: View {
                                 }
                                 
                                 if let suggestion = suggestion {
-                                    // View to display the suggestion
                                     SuggestionView(suggestionText: suggestion)
                                     Spacer()
                                 }
-                                
                             }
                             
                             if let hourly = weatherService.hourlyForecast {
-                                // Header like in the screenshot
                                 VStack(alignment: .leading){
                                     Text("HOURLY FORECAST")
                                         .font(.caption)
@@ -67,7 +61,6 @@ struct ContentView: View {
                                 }
                             }
                             
-                            // --- Display Daily Forecast (Live Data) ---
                             if let daily = weatherService.dailyForecast,
                                let todaySunrise = daily.sunrise.first,
                                let todaySunset = daily.sunset.first {
@@ -78,7 +71,6 @@ struct ContentView: View {
                             }
                         }else if let error = weatherService.error {
                             ErrorView(error: error)
-                            
                         } else {
                             Text("Fetching your location...")
                                 .foregroundColor(.white)
@@ -88,17 +80,14 @@ struct ContentView: View {
                         Spacer()
                     }
                 }.scrollIndicators(.hidden)
-                    
             }
             .onAppear {
                 locationManager.requestLocation()
                 notificationManager.requestAuthorization()
             }
             .onChange(of: locationManager.location) { oldLocation, newLocation in
-                // This runs whenever the location changes (or is first received)
                 guard let location = newLocation else { return }
                 
-                // Create a Task to call our async function
                 Task {
                     await weatherService.fetchWeatherData(
                         latitude: location.coordinate.latitude,
@@ -107,16 +96,13 @@ struct ContentView: View {
                 }
             }
             .onChange(of: weatherService.fetchID) {
-                // This block now runs reliably after every single successful fetch.
                 print("--- TRACE 1: onChange(of: fetchID) was triggered. ---")
                 
-                // --- Schedule Notifications ---
                 if let daily = weatherService.dailyForecast, !hasScheduledDailyNotification {
                     notificationManager.scheduleDailyForecast(dailyForecast: daily)
                     hasScheduledDailyNotification = true
                 }
                 
-                // --- Fetch AI Suggestions ---
                 guard !isLoadingSuggestion else {
                     print("--- TRACE X: Aborted because a suggestion is already loading. ---")
                     return
@@ -134,8 +120,6 @@ struct ContentView: View {
                         return
                     }
                     
-                    // --- UPDATED CALL ---
-                    // Call the new, centralized summarizer.
                     guard let summary = WeatherAppHelpers.create(
                         current: current,
                         daily: daily,
@@ -168,7 +152,6 @@ struct ContentView: View {
             }
         }
     }
-    
 }
 
 #Preview {

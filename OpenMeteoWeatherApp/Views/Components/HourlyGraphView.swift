@@ -52,7 +52,7 @@ struct HourlyGraphView: View {
     
     var body: some View {
         ZStack {
-            // NEW: Updated background to match the screenshot
+            //
             LinearGradient(
                 gradient: Gradient(colors: [Color(red: 0.2, green: 0.6, blue: 1.0), Color(red: 0.4, green: 0.8, blue: 1.0)]),
                 startPoint: .top,
@@ -61,7 +61,7 @@ struct HourlyGraphView: View {
             .ignoresSafeArea()
 
             VStack {
-                // The dynamic header
+            
                 VStack {
                     if let selectedDataPoint {
                         Text("Time: \(selectedDataPoint.date, format: .dateTime.hour().minute())")
@@ -83,7 +83,7 @@ struct HourlyGraphView: View {
                 VStack {
                     Chart {
                         ForEach(dataPoints) { point in
-                            // The solid yellow area
+                        
                             AreaMark(
                                 x: .value("Time", point.date),
                                 y: .value("Temp", point.temperature)
@@ -99,7 +99,7 @@ struct HourlyGraphView: View {
                             
                         }
                         
-                        // H/L Annotations
+                    
                         if let highTempDataPoint {
                              PointMark(x: .value("Time", highTempDataPoint.date), y: .value("Temp", highTempDataPoint.temperature))
                                 .annotation(position: .top, alignment: .center) {
@@ -126,10 +126,10 @@ struct HourlyGraphView: View {
                                 }
                         }
                     }
-                    .chartYAxis(.hidden) // Hide the Y-axis labels as in the screenshot
-                    .chartXAxis(.hidden) // Hide the X-axis labels as in the screenshot
+                    .chartYAxis(.hidden)
+                    .chartXAxis(.hidden)
                     .chartXSelection(value: $selectedDate)
-                    // NEW: Add the chartOverlay to place the icons at the top.
+                
                                         .chartOverlay { proxy in
                                             VStack(alignment: .leading) {
                                                 HStack {
@@ -141,7 +141,7 @@ struct HourlyGraphView: View {
                                                             
                                                     }
                                                 }
-                                                Spacer() // Pushes the HStack to the top of the overlay
+                                                Spacer()
                                             }
                                             .padding(.top, 8)
                                         }
@@ -163,9 +163,9 @@ struct HourlyGraphView: View {
 
 
 #Preview {
-    // We must create mock data for the preview to work.
+
     struct PreviewWrapper: View {
-        // Create a function to generate sample data for the next 15 hours.
+    
         private func createMockHourlyData() -> Hourly {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
@@ -175,10 +175,10 @@ struct HourlyGraphView: View {
             
             let now = Date()
             let temperatures = [15.0, 16.0, 18.0, 20.0, 22.0, 23.0, 22.5, 21.0, 19.0, 18.0, 17.0, 16.0, 15.0, 14.0, 14.0]
-            let weatherCodes = [1, 1, 0, 0, 0, 0, 1, 2, 3, 3, 2, 1, 1, 1, 2] // Clear, partly cloudy, etc.
+            let weatherCodes = [1, 1, 0, 0, 0, 0, 1, 2, 3, 3, 2, 1, 1, 1, 2]
             
             for i in 0..<15 {
-                let date = now.addingTimeInterval(TimeInterval(i * 3600)) // Add 'i' hours
+                let date = now.addingTimeInterval(TimeInterval(i * 3600))
                 times.append(formatter.string(from: date))
                 temps.append(temperatures[i])
                 codes.append(weatherCodes[i])
@@ -187,17 +187,17 @@ struct HourlyGraphView: View {
             return Hourly(
                 time: times,
                 temperature2M: temps,
-                relativeHumidity2M: [], // Not needed for this view
-                apparentTemperature: [], // Not needed for this view
-                precipitationProbability: [], // Not needed for this view
+                relativeHumidity2M: [],
+                apparentTemperature: [],
+                precipitationProbability: [],
                 weatherCode: codes,
-                cloudCover: [], // Not needed for this view
-                windSpeed10M: [] // Not needed for this view
+                cloudCover: [],
+                windSpeed10M: []
             )
         }
         
         var body: some View {
-            // Wrap in NavigationStack to see the title correctly.
+        
             NavigationStack {
                 HourlyGraphView(hourlyData: createMockHourlyData())
             }

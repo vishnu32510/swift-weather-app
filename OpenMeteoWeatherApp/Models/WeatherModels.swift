@@ -1,6 +1,5 @@
 import Foundation
 
-// MARK: - WeatherResponseModel
 struct WeatherResponseModel: Codable {
     let latitude, longitude: Double
     let generationtimeMS: Double
@@ -30,7 +29,6 @@ struct WeatherResponseModel: Codable {
     }
 }
 
-// MARK: - Current
 struct Current: Codable, Equatable {
     let time: String
     let interval: Int
@@ -58,7 +56,6 @@ struct Current: Codable, Equatable {
     }
 }
 
-// MARK: - Units
 struct CurrentUnits: Codable {
     let time, interval, temperature2M, relativeHumidity2M, apparentTemperature, isDay, precipitation, weatherCode, cloudCover, windSpeed10M, windDirection10M: String
     enum CodingKeys: String, CodingKey {

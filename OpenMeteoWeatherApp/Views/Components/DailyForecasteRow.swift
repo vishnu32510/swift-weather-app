@@ -37,11 +37,9 @@ struct DailyForecastRow: View {
             }
             .frame(width: 50)
 
-            // Min temperature
             Text("\(minTemp)°")
                 .fontWeight(.medium)
             
-            // Temperature range bar
             Capsule()
                 .fill(
                     LinearGradient(
@@ -52,7 +50,6 @@ struct DailyForecastRow: View {
                 )
                 .frame(height: 5)
 
-            // Max temperature
             Text("\(maxTemp)°")
                 .fontWeight(.medium)
         }

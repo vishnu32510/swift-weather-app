@@ -4,7 +4,7 @@ import SwiftUI
 @MainActor
 class WeatherService: ObservableObject {
     @Published var currentWeather: Current?
-    @Published var hourlyForecast: Hourly? // Re-enabled to match the data model
+    @Published var hourlyForecast: Hourly?
     @Published var dailyForecast: Daily?
     
     @Published var fetchID = UUID()
@@ -21,19 +21,6 @@ class WeatherService: ObservableObject {
         isLoading = true
         error = nil
         
-//        let cacheKey = "\(latitude),\(longitude)" as NSString
-//        if let cachedData = cache.object(forKey: cacheKey) {
-//            do {
-//                print("✅ Loading weather data from cache.")
-//                let weatherResponse = try JSONDecoder().decode(WeatherResponseModel.self, from: cachedData as Data)
-//                self.processWeatherResponse(weatherResponse)
-//                self.isLoading = false
-//                return
-//            } catch {
-//                print("⚠️ Cached data is invalid. Fetching from network.")
-//                cache.removeObject(forKey: cacheKey)
-//            }
-//        }
 
         guard var urlComponents = URLComponents(string: baseURL) else {
             self.error = WeatherServiceError.invalidURL
@@ -74,49 +61,48 @@ class WeatherService: ObservableObject {
 //            }
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                // We couldn't even get a HTTP response, throw a generic error.
+            
                 throw WeatherServiceError.networkError(statusCode: -1)
             }
 
-            // --- YOUR SUPERIOR SWITCH STATEMENT IS RESTORED ---
+        
             switch httpResponse.statusCode {
                 
             case 200:
-                // --- SUCCESS ---
+            
                 let decoder = JSONDecoder()
-                // The fix (removing dateDecodingStrategy) is applied here
+            
                 let weatherResponse = try decoder.decode(WeatherResponseModel.self, from: data)
                 
-                // Cache the valid data and process the response
-//                cache.setObject(data as NSData, forKey: cacheKey)
+            
                 self.processWeatherResponse(weatherResponse)
-                currentRetryCount = 0 // Reset retry count on success
+                currentRetryCount = 0
 
             case 429:
-                // --- RATE LIMIT: RETRY ---
+            
                 if currentRetryCount < maxRetries {
                     currentRetryCount += 1
-                    // Exponential backoff: wait 2s, then 4s, then 8s...
+                
                     let sleepDuration = UInt64(pow(2.0, Double(currentRetryCount)) * 1_000_000_000)
                     try await Task.sleep(nanoseconds: sleepDuration)
-                    await fetchWeatherData(latitude: latitude, longitude: longitude) // Retry the request
+                    await fetchWeatherData(latitude: latitude, longitude: longitude)
                 } else {
                     throw WeatherServiceError.rateLimitExceeded
                 }
 
             case 500...599:
-                // --- SERVER ERROR: RETRY ---
+            
                 if currentRetryCount < maxRetries {
                     currentRetryCount += 1
                     let sleepDuration = UInt64(pow(2.0, Double(currentRetryCount)) * 1_000_000_000)
                     try await Task.sleep(nanoseconds: sleepDuration)
-                    await fetchWeatherData(latitude: latitude, longitude: longitude) // Retry the request
+                    await fetchWeatherData(latitude: latitude, longitude: longitude)
                 } else {
                     throw WeatherServiceError.serverError(statusCode: httpResponse.statusCode)
                 }
 
             default:
-                // --- ALL OTHER ERRORS ---
+            
                 throw WeatherServiceError.networkError(statusCode: httpResponse.statusCode)
             }
 
@@ -131,12 +117,12 @@ class WeatherService: ObservableObject {
     private func processWeatherResponse(_ response: WeatherResponseModel) {
         print("✅ Successfully parsed WeatherResponseModel.")
         self.currentWeather = response.current
-        self.hourlyForecast = response.hourly // Re-enabled
+        self.hourlyForecast = response.hourly
         self.dailyForecast = response.daily
         self.fetchID = UUID()
     }
     
-    // Custom error enum...
+
     enum WeatherServiceError: LocalizedError {
         case invalidURL
         case networkError(statusCode: Int)

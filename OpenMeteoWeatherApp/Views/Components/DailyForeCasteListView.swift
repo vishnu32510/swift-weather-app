@@ -13,7 +13,6 @@ struct DailyForeCasteListView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            // Header like in the screenshot
             Text("10-DAY FORECAST")
                 .font(.caption)
                 .fontWeight(.bold)
@@ -21,7 +20,7 @@ struct DailyForeCasteListView: View {
                 .padding(.leading)
             
             
-            // The vertical list of daily forecasts
+            
             VStack {
                 ForEach(daily.time.indices, id: \.self) { index in
                     rowView(for: index)
@@ -38,7 +37,7 @@ struct DailyForeCasteListView: View {
             DailyForecastRow(
                 isToday: index == 0,
                 dayOfWeek: dayOfWeek(from: daily.time[index]),
-                // Safely unwrap optionals with default values
+            
                 imageName: WeatherCodeMapper.symbol(for: daily.weatherCode[index] ?? 1),
                 precipitationProbability: daily.precipitationProbabilityMax[index] ?? 0,
                 minTemp: Int((daily.temperature2MMin[index] ?? 0).rounded()),
@@ -46,14 +45,14 @@ struct DailyForeCasteListView: View {
             )
         }
     
-    // Helper function to format the date string from the API
+
     private func dayOfWeek(from dateString: String) -> String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd" // Format from Open-Meteo
+        dateFormatter.dateFormat = "yyyy-MM-dd"
         guard let date = dateFormatter.date(from: dateString) else {
             return "N/A"
         }
-        dateFormatter.dateFormat = "EEE" // Format to "TUE", "WED", etc.
+        dateFormatter.dateFormat = "EEE"
         return dateFormatter.string(from: date).uppercased()
     }
 }
