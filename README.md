@@ -1,22 +1,41 @@
-# OpenMeteo Weather App
+# OpenMeteo Weather Assistant
 
-A modern, feature-rich weather application built with SwiftUI that provides real-time weather information and intelligent weather insights using the Open-Meteo API.
+A modern, feature-rich weather assistant built natively for iOS using SwiftUI. This application goes beyond simple data display by integrating AI to provide users with personalized and context-aware activity suggestions.
 
-## Features
+## Core Features
 
-### Core Features
-- **Real-time Weather Data**: Get current weather conditions for your location
-- **Hourly Forecast**: View detailed hourly weather predictions
-- **Daily Forecast**: Plan ahead with 16-day weather forecasts
-- **Location-based**: Automatically detects and updates weather for your current location
-- **Modern UI**: Clean, intuitive interface with dynamic backgrounds based on time of day
+### Frontend
+- A sleek, single-page interface built with SwiftUI
+- Dynamic backgrounds that adapt to the time of day (day/night)
+- Intuitive navigation and responsive layout
+- Accessibility support
 
-### Advanced Features
-- **AI-Powered Weather Insights**: Get personalized weather suggestions and insights
-- **Smart Notifications**: Receive intelligent weather alerts for significant changes
-- **Dynamic UI**: Beautiful animations and transitions
-- **Offline Support**: Cached weather data for offline access
-- **Error Handling**: Robust error handling with retry mechanisms
+### Backend Integration
+The app reliably fetches and parses data from two key backend services:
+- **Open-Meteo API**: For real-time weather conditions, detailed hourly forecasts, and 16-day daily forecasts
+- **Google Gemini API**: For generating creative and helpful weather-based suggestions
+
+### Location-Aware
+- Automatically detects the user's location
+- Provides accurate, localized weather data
+- Efficient location updates with privacy considerations
+
+## Advanced & Differentiating Features
+
+### AI-Powered Insights
+The app's standout feature synthesizes current and daily weather data into a detailed summary, which is then sent to the Gemini LLM to generate unique, actionable suggestions for the user (e.g., "🚴 Energetic day for biking through the lakeside trail").
+
+### Intelligent Notifications & Background Processing
+The app implements a robust notification system and leverages background tasks (BGTaskScheduler) to:
+- Schedule a daily 7 AM forecast notification
+- Periodically fetch weather and AI suggestions in the background
+- Send users a "Daily Weather Tip" as a push notification—a truly unique update not found in standard weather apps
+
+### Robust Architecture
+- Built on a clean MVVM architecture
+- Clear separation of concerns (Views, Services, Managers)
+- Modern Swift practices including async/await for concurrency
+- Well-structured notification and location management system
 
 ## Device-Specific Features
 
@@ -78,7 +97,7 @@ When running the app in the iOS Simulator:
 ### Installation
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/OpenMeteoWeatherApp.git
+git clone https://github.com/vishnu32510/OpenMeteoWeatherApp.git
 ```
 
 2. Open the project in Xcode
@@ -149,8 +168,16 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Vishnu Priyan Sellam Shanmugavel
 
+## Contact & Links
+
+- LinkedIn: [Vishnu Priyan](https://www.linkedin.com/in/vishnu32510/)
+- GitHub: [vishnu32510](https://github.com/vishnu32510)
+- Devpost: [vishnu32510](https://devpost.com/vishnu32510)
+- Personal Website: [vishnupriyan-ss.web.app](https://vishnupriyan-ss.web.app/)
+
 ## Acknowledgments
 
 - Open-Meteo API for weather data
+- Google Gemini API for AI integration
 - Apple's SwiftUI framework
 - The iOS development community 
