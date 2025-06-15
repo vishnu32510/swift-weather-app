@@ -82,6 +82,8 @@ struct Daily: Codable, Equatable {
     let precipitationSum: [Double?]
     let windSpeed10MMax: [Double?]
     let precipitationProbabilityMax: [Int?]
+    let sunrise: [String]
+    let sunset: [String]
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -91,6 +93,8 @@ struct Daily: Codable, Equatable {
         case precipitationSum = "precipitation_sum"
         case windSpeed10MMax = "windspeed_10m_max"
         case precipitationProbabilityMax = "precipitation_probability_max"
+        case sunrise = "sunrise"
+        case sunset = "sunset"
     }
 }
 

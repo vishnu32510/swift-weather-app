@@ -36,10 +36,8 @@ struct ContentView: View {
                         else if let currentWeather = weatherService.currentWeather {
                             // --- Display Today's Weather (Live Data) ---
                             TodayWeather(
-                                weatherCode: currentWeather.weatherCode,
+                                current: currentWeather,
                                 locality: locationManager.placemark?.locality ?? "Unknown Location",
-                                imageName: WeatherCodeMapper.symbol(for: currentWeather.weatherCode),
-                                currentTemp: Int(currentWeather.temperature2M.rounded()),
                             )
                             if let _ = weatherService.currentWeather {
                                 if isLoadingSuggestion {
@@ -70,9 +68,13 @@ struct ContentView: View {
                             }
                             
                             // --- Display Daily Forecast (Live Data) ---
-                            if let daily = weatherService.dailyForecast {
-                                DailyForeCasteListView(daily: daily)
+                            if let daily = weatherService.dailyForecast,
+                               let todaySunrise = daily.sunrise.first,
+                               let todaySunset = daily.sunset.first {
                                 
+                                SunriseSunsetView(sunriseTime: todaySunrise, sunsetTime: todaySunset)
+                                
+                                DailyForeCasteListView(daily: daily)
                             }
                         }else if let error = weatherService.error {
                             ErrorView(error: error)

@@ -13,7 +13,6 @@ struct CityView: View {
         Text(cityName)
             .font(.system(size: 32, weight: .medium, design: .default))
             .foregroundColor(.white)
-            .padding()
     }
 }
 
