@@ -1,0 +1,183 @@
+//
+//  ContentView.swift
+//  OpenMeteoWeatherApp
+//
+//  Created by Vishnu Priyan Sellam Shanmugavel on 6/14/25.
+//
+
+import SwiftUI
+
+struct ContentView: View {
+    
+    @StateObject private var locationManager = LocationManager()
+    @StateObject private var llmService = LLMService()
+    @StateObject private var weatherService = WeatherService()
+    @EnvironmentObject private var notificationManager: NotificationManager
+    
+    @State private var hasScheduledDailyNotification = false
+    @State private var suggestion: String?
+    @State private var isLoadingSuggestion = false
+    
+    
+    private var isNight: Bool {
+        weatherService.currentWeather?.isDay == 0
+    }
+    
+    var body: some View {
+        ZStack{
+            BackgroundView(isNight: isNight)
+            ScrollView(.vertical){
+                VStack{
+                    // Check if the weather service is loading
+                    if weatherService.isLoading {
+                        LoadingView()
+                    }
+                    else if let currentWeather = weatherService.currentWeather {
+                        // --- Display Today's Weather (Live Data) ---
+                        TodayWeather(
+                            weatherCode: currentWeather.weatherCode,
+                            locality: locationManager.placemark?.locality ?? "Unknown Location",
+                            imageName: WeatherCodeMapper.symbol(for: currentWeather.weatherCode),
+                            currentTemp: Int(currentWeather.temperature2M.rounded()),
+                        )
+                        if let _ = weatherService.currentWeather {
+                            if isLoadingSuggestion {
+                                ProgressView().tint(.white)
+                            }
+                            
+                            if let suggestion = suggestion {
+                                // View to display the suggestion
+                                SuggestionView(suggestionText: suggestion)
+                                Spacer()
+                            }
+                            
+                        }
+                        
+                        if let hourly = weatherService.hourlyForecast {
+                            // Header like in the screenshot
+                            VStack(alignment: .leading){
+                                Text("HOURLY FORECAST")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(.leading)
+                                HourlyForecastView(hourlyData: hourly)
+                            }
+                        }
+                        
+                        // --- Display Daily Forecast (Live Data) ---
+                        if let daily = weatherService.dailyForecast {
+                            DailyForeCasteListView(daily: daily)
+                            
+                        }
+                    }else if let error = weatherService.error {
+                        ErrorView(error: error)
+                        
+                    } else {
+                        Text("Fetching your location...")
+                            .foregroundColor(.white)
+                            .padding(.top, 100)
+                    }
+                    
+                    Spacer()
+                }
+            }.scrollIndicators(.hidden)
+            
+        }
+        .onAppear {
+            locationManager.requestLocation()
+            notificationManager.requestAuthorization()
+        }
+        .onChange(of: locationManager.location) { oldLocation, newLocation in
+            // This runs whenever the location changes (or is first received)
+            guard let location = newLocation else { return }
+            
+            // Create a Task to call our async function
+            Task {
+                await weatherService.fetchWeatherData(
+                    latitude: location.coordinate.latitude,
+                    longitude: location.coordinate.longitude
+                )
+            }
+        }
+        .onChange(of: weatherService.fetchID) {
+            // This block now runs reliably after every single successful fetch.
+            print("--- TRACE 1: onChange(of: fetchID) was triggered. ---")
+            
+            // --- Schedule Notifications ---
+            if let daily = weatherService.dailyForecast, !hasScheduledDailyNotification {
+                notificationManager.scheduleDailyForecast(dailyForecast: daily)
+                hasScheduledDailyNotification = true
+            }
+            
+            // --- Fetch AI Suggestions ---
+            guard !isLoadingSuggestion else {
+                print("--- TRACE X: Aborted because a suggestion is already loading. ---")
+                return
+            }
+            print("--- TRACE 2: Starting AI suggestion Task. ---")
+            Task {
+                await MainActor.run {
+                    isLoadingSuggestion = true
+                    suggestion = nil
+                }
+                
+                guard let current = weatherService.currentWeather,
+                      let daily = weatherService.dailyForecast else {
+                    print("Background task failed: Could not get weather data.")
+                    return
+                }
+                
+                // --- UPDATED CALL ---
+                // Call the new, centralized summarizer.
+                guard let summary = WeatherAppHelpers.create(
+                    current: current,
+                    daily: daily,
+                    locality: locationManager.placemark?.locality
+                ) else {
+                    print("Background task failed: Could not create summary.")
+                    return
+                }
+                
+                guard summary != "Weather data is not currently available." else {
+                    print("--- TRACE X: Aborted because weather summary could not be created. ---")
+                    await MainActor.run { isLoadingSuggestion = false }
+                    return
+                }
+                
+                print("--- TRACE 4: Weather summary created. Calling LLM service... ---")
+                do {
+                    let fetchedSuggestion = try await llmService.fetchSuggestions(for: summary)
+                    await MainActor.run {
+                        self.suggestion = fetchedSuggestion
+                        print("--- TRACE 5: LLM service returned successfully! ---")
+                    }
+                } catch {
+                    print("--- TRACE X: LLM service FAILED with error: \(error) ---")
+                    await MainActor.run { self.suggestion = nil }
+                }
+                
+                await MainActor.run { isLoadingSuggestion = false }
+            }
+        }
+    }
+    
+    private func checkForInterestingWeather(with weatherService: WeatherService) {
+        // Example: Alert if rain is likely in the next hour
+        if let hourly = weatherService.hourlyForecast {
+            let nextHourPrecipitation = hourly.precipitationProbability[1] // Check the second hour
+            if nextHourPrecipitation ?? 0 > 50 { // If more than 50% chance of rain
+                notificationManager.scheduleWeatherAlert(
+                    title: "Heads Up!",
+                    body: "Rain is likely in the next hour. You might want to grab an umbrella! ☔️"
+                )
+            }
+        }
+    }
+    
+}
+
+#Preview {
+    ContentView()
+}
+
