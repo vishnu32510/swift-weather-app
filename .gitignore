@@ -2,3 +2,5 @@
 
 # Ignore secrets configuration file
 Secrets.xcconfig
+.DS_Store
+project.xcworkspace
