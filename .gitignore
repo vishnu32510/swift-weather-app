@@ -1,0 +1,4 @@
+# .gitignore
+
+# Ignore secrets configuration file
+Secrets.xcconfig

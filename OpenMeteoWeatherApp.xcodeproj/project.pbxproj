@@ -284,6 +284,8 @@
 /* Begin XCBuildConfiguration section */
 		27FAD1162DFE5B5F00D47802 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 27FAD0F92DFE5B5D00D47802 /* OpenMeteoWeatherApp */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -348,6 +350,8 @@
 		};
 		27FAD1172DFE5B5F00D47802 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 27FAD0F92DFE5B5D00D47802 /* OpenMeteoWeatherApp */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
