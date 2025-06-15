@@ -24,7 +24,7 @@ The app leverages `BGTaskScheduler` to run tasks in the background, providing tr
 - **AI-Powered Daily Tip:** A background task runs periodically (with a minimum 8-hour gap) to provide a 'Daily Weather Tip'. It analyzes the day's complete weather summary, sends it to the Gemini LLM, and delivers a creative and relevant activity suggestion as a push notification.
 - **Daily 7 AM Forecast:** A conventional but useful daily summary notification.
 
-[Watch the demo video](https://youtu.be/92IoX19Djtc)
+[Watch the demo video](#)
 
 <table>
   <tr>
