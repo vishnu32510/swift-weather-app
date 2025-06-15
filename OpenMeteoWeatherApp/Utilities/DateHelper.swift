@@ -9,6 +9,10 @@ import Foundation
 
 enum DateHelper {
     
+    static func date(from dateString: String) -> Date? {
+            return apiDateParser.date(from: dateString)
+        }
+    
     // The single, efficient parser for all dates from the API (e.g., "2025-06-15T05:45").
     private static let apiDateParser: DateFormatter = {
         let formatter = DateFormatter()

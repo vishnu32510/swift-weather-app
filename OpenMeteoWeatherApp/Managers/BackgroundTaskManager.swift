@@ -8,6 +8,7 @@ class BackgroundTaskManager {
     
     // These are needed to perform the work
     private let locationManager = LocationManager()
+    private let weatherAlertManager = WeatherAlertManager()
     private let weatherService = WeatherService()
     private let llmService = LLMService()
     private let notificationManager = NotificationManager()
@@ -68,6 +69,14 @@ class BackgroundTaskManager {
             // 2. Fetch Weather
             await weatherService.fetchWeatherData(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
             
+            // --- NEW: Check for interesting weather alerts ---
+                        if let hourly = weatherService.hourlyForecast {
+                            await weatherAlertManager.checkForAlerts(
+                                hourlyForecast: hourly,
+                                locality: locationManager.placemark?.locality
+                            )
+                        }
+            
             // 3. Create Summary for AI
             guard let current = weatherService.currentWeather,
                   let daily = weatherService.dailyForecast else {
@@ -99,4 +108,5 @@ class BackgroundTaskManager {
             print("Background task failed with error: \(error)")
         }
     }
+
 }

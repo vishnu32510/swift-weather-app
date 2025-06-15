@@ -126,4 +126,71 @@ class LLMService: ObservableObject {
         let geminiResponse = try JSONDecoder().decode(GeminiResponse.self, from: data)
         return geminiResponse.candidates.first?.content.parts.first?.text ?? "No suggestions available at this time."
     }
+    
+    
+    // NEW: Function specifically for generating alert notifications.
+        func generateWeatherAlert(for eventSummary: String) async throws -> String {
+            guard let apiKey = APIKeyManager.getAPIKey() else {
+                throw URLError(.userAuthenticationRequired)
+            }
+            
+            let urlString = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=\(apiKey)"
+            guard let url = URL(string: urlString) else { throw URLError(.badURL) }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+            let prompt = """
+            You are a helpful assistant that writes weather alerts. Based on the summary provided, create a notification.
+
+            **RESPONSE RULES:**
+            1.  Create a short, catchy **Title** and a helpful, one-sentence **Body**.
+            2.  The Body MUST include a relevant emoji.
+            3.  Format your entire response as a single line: **Title|Body**
+            4.  Do NOT include any other text, explanations, or formatting.
+
+            **EXAMPLES:**
+            - Input: "Upcoming weather event in Millennium Park: heavy rain with a temperature of 15°C."
+            - Output: Heads Up!|Heavy rain is starting soon, you might want to grab an umbrella! ☔️
+
+            - Input: "Upcoming weather event in your area: heavy snow fall with a temperature of -2°C."
+            - Output: Snow Alert|Heavy snow is expected. Time to wear a warm jacket! 🧥
+
+            **EVENT SUMMARY:**
+            \(eventSummary)
+            """
+            
+            print(prompt)
+            
+            
+            // 1. Configure the model's creativity and response length
+            let config = GenerationConfig(temperature: 0.7, maxOutputTokens: 100)
+            
+            // 2. Define safety settings to block harmful content (using standard defaults)
+            let safety = [
+                SafetySetting(category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE"),
+                SafetySetting(category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE"),
+                SafetySetting(category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE"),
+                SafetySetting(category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE")
+            ]
+            
+            // 3. Create the complete request body
+            let requestBody = GeminiRequest(
+                contents: [Content(parts: [Part(text: prompt)])],
+                generationConfig: config,
+                safetySettings: safety
+            )
+            // --- END OF CORRECTION ---
+            
+            request.httpBody = try JSONEncoder().encode(requestBody)
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                throw URLError(.badServerResponse)
+            }
+            
+            let geminiResponse = try JSONDecoder().decode(GeminiResponse.self, from: data)
+            return geminiResponse.candidates.first?.content.parts.first?.text ?? "Alert|Weather is approaching."
+        }
 }

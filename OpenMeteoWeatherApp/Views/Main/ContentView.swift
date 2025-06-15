@@ -169,19 +169,6 @@ struct ContentView: View {
         }
     }
     
-    private func checkForInterestingWeather(with weatherService: WeatherService) {
-        // Example: Alert if rain is likely in the next hour
-        if let hourly = weatherService.hourlyForecast {
-            let nextHourPrecipitation = hourly.precipitationProbability[1] // Check the second hour
-            if nextHourPrecipitation ?? 0 > 50 { // If more than 50% chance of rain
-                notificationManager.scheduleWeatherAlert(
-                    title: "Heads Up!",
-                    body: "Rain is likely in the next hour. You might want to grab an umbrella! ☔️"
-                )
-            }
-        }
-    }
-    
 }
 
 #Preview {

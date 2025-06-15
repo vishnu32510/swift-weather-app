@@ -54,7 +54,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     // MARK: - Notification Scheduling
     
     /// Schedules an immediate weather alert (e.g., for rain starting soon).
-    func scheduleWeatherAlert(title: String, body: String, userInfo: [AnyHashable: Any] = [:]) {
+    func scheduleWeatherAlert(title: String, body: String,timeInterval: TimeInterval = 5, userInfo: [AnyHashable: Any] = [:]) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -62,7 +62,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         content.categoryIdentifier = Self.weatherAlertCategoryID
         content.userInfo = userInfo
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false) // 5 seconds to give user time to exit app
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         
         UNUserNotificationCenter.current().add(request)
